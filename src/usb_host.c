@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -22,8 +22,11 @@
 
 #include "usb_host.h"
 #include "usbh_core.h"
-#include "usbh_hid.h"
+#include "usbh_audio.h"
 #include "usbh_cdc.h"
+#include "usbh_msc.h"
+#include "usbh_hid.h"
+#include "usbh_mtp.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -80,11 +83,23 @@ void MX_USB_HOST_Init(void)
   {
     Error_Handler();
   }
-  if (USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS) != USBH_OK)
+  if (USBH_RegisterClass(&hUsbHostHS, USBH_AUDIO_CLASS) != USBH_OK)
   {
     Error_Handler();
   }
   if (USBH_RegisterClass(&hUsbHostHS, USBH_CDC_CLASS) != USBH_OK)
+  {
+    Error_Handler();
+  }
+  if (USBH_RegisterClass(&hUsbHostHS, USBH_MSC_CLASS) != USBH_OK)
+  {
+    Error_Handler();
+  }
+  if (USBH_RegisterClass(&hUsbHostHS, USBH_HID_CLASS) != USBH_OK)
+  {
+    Error_Handler();
+  }
+  if (USBH_RegisterClass(&hUsbHostHS, USBH_MTP_CLASS) != USBH_OK)
   {
     Error_Handler();
   }
@@ -97,11 +112,14 @@ void MX_USB_HOST_Init(void)
   /* USER CODE END USB_HOST_Init_PostTreatment */
 }
 
+/*
+ * Background task
+ */
 void MX_USB_HOST_Process(void)
 {
+  /* USB Host Background task */
   USBH_Process(&hUsbHostHS);
 }
-
 /*
  * user callback definition
  */

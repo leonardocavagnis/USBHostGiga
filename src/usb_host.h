@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -69,6 +69,8 @@ typedef enum {
 
 /** @brief USB Host initialization function. */
 void MX_USB_HOST_Init(void);
+
+void MX_USB_HOST_Process(void);
 
 /**
   * @}

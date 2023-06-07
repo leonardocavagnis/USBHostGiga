@@ -366,7 +366,7 @@ static USBH_StatusTypeDef USBH_CDC_Process(USBH_HandleTypeDef *phost)
           CDC_Handle->state = CDC_ERROR_STATE;
         }
       }
-      break;
+      break;  
 
     case CDC_SET_LINE_CODING_STATE:
       req_status = SetLineCoding(phost, CDC_Handle->pUserLineCoding);
@@ -529,6 +529,7 @@ static USBH_StatusTypeDef SetControlLineState(USBH_HandleTypeDef *phost,
   return USBH_CtlReq(phost, NULL, 0);
 }
 
+
 /**
   * @brief  This function prepares the state before issuing the class specific commands
   * @param  None
@@ -580,7 +581,6 @@ USBH_StatusTypeDef USBH_CDC_SetControlLineState(USBH_HandleTypeDef *phost,
 
   return USBH_OK;
 }
-
 
 /**
   * @brief  This function prepares the state before issuing the class specific commands

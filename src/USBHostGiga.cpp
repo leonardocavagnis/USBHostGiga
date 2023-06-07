@@ -30,6 +30,7 @@ char Keyboard::getAscii(HID_KEYBD_Info_TypeDef evt) {
 }
 
 void Keyboard::begin() {
+    pinMode(PA_15, OUTPUT);
     MX_USB_HOST_Init();
 }
 
@@ -42,6 +43,7 @@ HID_MOUSE_Info_TypeDef Mouse::read() {
 }
 
 void Mouse::begin() {
+    pinMode(PA_15, OUTPUT);
     MX_USB_HOST_Init();
 }
 
@@ -66,6 +68,7 @@ void HostSerial::rx_cb(uint8_t* data, size_t len) {
 extern "C" ApplicationTypeDef Appli_state;
 
 void HostSerial::begin(unsigned long unused, uint16_t config) {
+    pinMode(PA_15, OUTPUT);
     MX_USB_HOST_Init();
     while (Appli_state != APPLICATION_READY) {
         delay(100);

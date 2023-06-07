@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2022 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -29,7 +29,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "main.h"
 
 #include "stm32h7xx.h"
 #include "stm32h7xx_hal.h"
@@ -62,10 +61,10 @@
   */
 
 /*----------   -----------*/
-#define USBH_MAX_NUM_ENDPOINTS      8U
+#define USBH_MAX_NUM_ENDPOINTS      5U
 
 /*----------   -----------*/
-#define USBH_MAX_NUM_INTERFACES      4U
+#define USBH_MAX_NUM_INTERFACES      10U
 
 /*----------   -----------*/
 #define USBH_MAX_NUM_CONFIGURATION      1U
@@ -137,7 +136,7 @@
 #if (USBH_DEBUG_LEVEL > 1U)
 
 #define  USBH_ErrLog(...) do { \
-                            printf("ERROR: ") ; \
+                            printf("ERROR: "); \
                             printf(__VA_ARGS__); \
                             printf("\n"); \
 } while (0)
@@ -147,7 +146,7 @@
 
 #if (USBH_DEBUG_LEVEL > 2U)
 #define  USBH_DbgLog(...)   do { \
-                            printf("DEBUG : ") ; \
+                            printf("DEBUG : "); \
                             printf(__VA_ARGS__); \
                             printf("\n"); \
 } while (0)

@@ -164,7 +164,7 @@ typedef union _CDC_LineCodingStructure
   struct
   {
 
-    uint16_t             dwDTERate;     /*Data terminal rate, in bits per second*/
+    uint32_t             dwDTERate;     /*Data terminal rate, in bits per second*/
     uint8_t              bCharFormat;   /*Stop bits
     0 - 1 Stop bit
     1 - 1.5 Stop bits
@@ -191,6 +191,7 @@ typedef union _CDC_LineStateStructure
   } b;
 }
 CDC_LineStateTypeDef;
+
 
 /* Header Functional Descriptor
 --------------------------------------------------------------------------------
@@ -432,8 +433,6 @@ void USBH_CDC_LineCodingChanged(USBH_HandleTypeDef *phost);
 void USBH_CDC_TransmitCallback(USBH_HandleTypeDef *phost);
 
 void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef *phost);
-
-void USBH_CDC_PartialReceiveCallback(uint8_t* data, size_t len);
 
 /**
   * @}

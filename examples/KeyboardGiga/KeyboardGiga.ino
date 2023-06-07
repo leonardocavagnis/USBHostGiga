@@ -5,10 +5,10 @@ Keyboard keyb;
 HostSerial ser;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   while (!Serial);
-  pinMode(PA_15, OUTPUT);
+  Serial.println("Keyboard USB reader");
+
   keyb.begin();
   ser.begin();
 }
