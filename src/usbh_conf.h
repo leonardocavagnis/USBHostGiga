@@ -73,7 +73,7 @@
 #define USBH_KEEP_CFG_DESCRIPTOR      1U
 
 /*----------   -----------*/
-#define USBH_MAX_NUM_SUPPORTED_CLASS      4U
+#define USBH_MAX_NUM_SUPPORTED_CLASS      4U /* NOTE: Reduced to 4 */
 
 /*----------   -----------*/
 #define USBH_MAX_SIZE_CONFIGURATION      256U
@@ -82,10 +82,10 @@
 #define USBH_MAX_DATA_BUFFER      512U
 
 /*----------   -----------*/
-#define USBH_DEBUG_LEVEL      4U
+#define USBH_DEBUG_LEVEL      4U /* FIXME: Restore to 0 when lib is released */
 
 /*----------   -----------*/
-#define USBH_USE_OS      1U
+#define USBH_USE_OS      1U /* NOTE: Enable OS support */
 
 /****************************************/
 /* #define for FS and HS identification */
@@ -93,10 +93,10 @@
 #define HOST_FS 		1
 
 #if (USBH_USE_OS == 1)
-  #include "cmsis_os2.h"
+  #include "cmsis_os2.h" /* NOTE: CMSIS-RTOS C API v2 */
   #include "cmsis_os.h"
   #define USBH_PROCESS_PRIO          osPriorityNormal
-  #define USBH_PROCESS_STACK_SIZE    ((uint16_t)4096)
+  #define USBH_PROCESS_STACK_SIZE    ((uint16_t)4096) /* NOTE: Increase stack size */
 #endif /* (USBH_USE_OS == 1) */
 
 /**

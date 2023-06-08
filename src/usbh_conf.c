@@ -37,13 +37,12 @@
 HCD_HandleTypeDef hhcd_USB_OTG_HS;
 void Error_Handler(void);
 
+/* USER CODE BEGIN 0 */
+/* Interrupt handler for USB OTG_HS */
 void OTG_HS_IRQHandler(void)
 {
   HAL_HCD_IRQHandler(&hhcd_USB_OTG_HS);
 }
-
-/* USER CODE BEGIN 0 */
-
 /* USER CODE END 0 */
 
 /* USER CODE BEGIN PFP */
@@ -99,14 +98,16 @@ void HAL_HCD_MspInit(HCD_HandleTypeDef* hcdHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* Peripheral clock enable */
-    __HAL_RCC_USB_OTG_HS_ULPI_CLK_SLEEP_DISABLE();  /* Fix hang on delay() - 1 */
-    __HAL_RCC_USB_OTG_HS_CLK_SLEEP_ENABLE();        /* Fix hang on delay() - 2 */
+    /* PATCH BEGIN USB_OTG_HS_MspInit 1 */
+    /* Fix hang on delay() */
+    __HAL_RCC_USB_OTG_HS_ULPI_CLK_SLEEP_DISABLE();  
+    __HAL_RCC_USB_OTG_HS_CLK_SLEEP_ENABLE();       
+    /* PATCH END USB_OTG_HS_MspInit 1 */
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 
-    NVIC_SetVector(OTG_HS_IRQn, (uint32_t)&OTG_HS_IRQHandler);
-
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0);
+    NVIC_SetVector(OTG_HS_IRQn, (uint32_t)&OTG_HS_IRQHandler); /* NOTE: Add handler to manage USB OTG_HS interrupt */
+    HAL_NVIC_SetPriority(OTG_HS_IRQn, 5, 0); /* NOTE: Lower priority to 5 */
     HAL_NVIC_EnableIRQ(OTG_HS_IRQn);
   /* USER CODE BEGIN USB_OTG_HS_MspInit 1 */
 
@@ -225,7 +226,7 @@ USBH_StatusTypeDef USBH_LL_Init(USBH_HandleTypeDef *phost)
   hhcd_USB_OTG_HS.Init.speed = HCD_SPEED_FULL;
   hhcd_USB_OTG_HS.Init.dma_enable = DISABLE;
   hhcd_USB_OTG_HS.Init.phy_itface = USB_OTG_EMBEDDED_PHY;
-  hhcd_USB_OTG_HS.Init.Sof_enable = ENABLE;
+  hhcd_USB_OTG_HS.Init.Sof_enable = ENABLE; /* NOTE: Enable Start of Frame interrupt */
   hhcd_USB_OTG_HS.Init.low_power_enable = DISABLE;
   hhcd_USB_OTG_HS.Init.use_external_vbus = DISABLE;
   if (HAL_HCD_Init(&hhcd_USB_OTG_HS) != HAL_OK)

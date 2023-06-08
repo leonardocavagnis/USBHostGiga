@@ -50,7 +50,7 @@ ApplicationTypeDef Appli_state = APPLICATION_IDLE;
  * -- Insert your variables declaration here --
  */
 /* USER CODE BEGIN 0 */
-
+static uint8_t usb_host_initialized = 0;
 /* USER CODE END 0 */
 
 /*
@@ -69,11 +69,10 @@ static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id);
   * Init USB host library, add supported class and start the library
   * @retval None
   */
-static int begun = 0;
 void MX_USB_HOST_Init(void)
 {
   /* USER CODE BEGIN USB_HOST_Init_PreTreatment */
-  if (begun) {
+  if (usb_host_initialized) {
     return;
   }
   /* USER CODE END USB_HOST_Init_PreTreatment */
@@ -108,7 +107,7 @@ void MX_USB_HOST_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USB_HOST_Init_PostTreatment */
-  begun = 1;
+  usb_host_initialized = 1;
   /* USER CODE END USB_HOST_Init_PostTreatment */
 }
 

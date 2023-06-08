@@ -118,8 +118,10 @@ static USBH_StatusTypeDef GetLineCoding(USBH_HandleTypeDef *phost,
 static USBH_StatusTypeDef SetLineCoding(USBH_HandleTypeDef *phost,
                                         CDC_LineCodingTypeDef *linecoding);
 
+/* PATCH BEGIN USBH_CDC_CORE_Private_FunctionPrototypes 1 */
 static USBH_StatusTypeDef SetControlLineState(USBH_HandleTypeDef *phost,
                                         uint8_t dtr, uint8_t rts);
+/* PATCH END USBH_CDC_CORE_Private_FunctionPrototypes 1 */
 
 static void CDC_ProcessTransmission(USBH_HandleTypeDef *phost);
 
@@ -351,6 +353,7 @@ static USBH_StatusTypeDef USBH_CDC_Process(USBH_HandleTypeDef *phost)
       status = USBH_OK;
       break;
 
+/* PATCH BEGIN USBH_CDC_Process 1 */
     case CDC_SET_CONTROL_LINE_STATE_STATE:
       req_status = SetControlLineState(phost, CDC_Handle->dtr, CDC_Handle->rts);
 
@@ -367,6 +370,7 @@ static USBH_StatusTypeDef USBH_CDC_Process(USBH_HandleTypeDef *phost)
         }
       }
       break;  
+/* PATCH END USBH_CDC_Process 1 */
 
     case CDC_SET_LINE_CODING_STATE:
       req_status = SetLineCoding(phost, CDC_Handle->pUserLineCoding);
@@ -513,6 +517,12 @@ static USBH_StatusTypeDef SetLineCoding(USBH_HandleTypeDef *phost,
   return USBH_CtlReq(phost, linecoding->Array, LINE_CODING_STRUCTURE_SIZE);
 }
 
+/* PATCH BEGIN SetControlLineState 1 */
+/**
+  * @brief 
+  * @param 
+  * @retval USBH_StatusTypeDef : USB ctl xfer status
+  */
 static USBH_StatusTypeDef SetControlLineState(USBH_HandleTypeDef *phost,
                                         uint8_t dtr,  uint8_t rts)
 {
@@ -528,7 +538,7 @@ static USBH_StatusTypeDef SetControlLineState(USBH_HandleTypeDef *phost,
 
   return USBH_CtlReq(phost, NULL, 0);
 }
-
+/* PATCH END SetControlLineState 1 */
 
 /**
   * @brief  This function prepares the state before issuing the class specific commands
@@ -558,6 +568,12 @@ USBH_StatusTypeDef USBH_CDC_SetLineCoding(USBH_HandleTypeDef *phost,
   return USBH_OK;
 }
 
+/* PATCH BEGIN USBH_CDC_SetControlLineState 1 */
+/**
+  * @brief  
+  * @param  
+  * @retval 
+  */
 USBH_StatusTypeDef USBH_CDC_SetControlLineState(USBH_HandleTypeDef *phost,
                                           uint8_t dtr, uint8_t rts)
 {
@@ -581,6 +597,7 @@ USBH_StatusTypeDef USBH_CDC_SetControlLineState(USBH_HandleTypeDef *phost,
 
   return USBH_OK;
 }
+/* PATCH END USBH_CDC_SetControlLineState 1 */
 
 /**
   * @brief  This function prepares the state before issuing the class specific commands
