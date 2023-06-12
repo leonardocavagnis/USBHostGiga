@@ -1,4 +1,4 @@
-#include "USBHostGiga.h"
+#include "USBHost_H7.h"
 
 RingBufferNGeneric<64, HID_KEYBD_Info_TypeDef> Keyboard::rxBuffer;
 RingBufferNGeneric<64, HID_MOUSE_Info_TypeDef> Mouse::rxBuffer;
