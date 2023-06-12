@@ -1,13 +1,14 @@
 #include "USBHost_H7.h"
 
-Keyboard keybd;
+USBHost_H7 usbhost;
+HIDKeyboard keybd;
 
 void setup() {
   Serial.begin(115200);
   while (!Serial);
   Serial.println("USB HID Keyboard");
 
-  keybd.begin();
+  usbhost.begin();
 }
 
 void loop() {

@@ -1,75 +1,70 @@
 #include "USBHost_H7.h"
 
-RingBufferNGeneric<64, HID_KEYBD_Info_TypeDef> Keyboard::rxBuffer;
-RingBufferNGeneric<64, HID_MOUSE_Info_TypeDef> Mouse::rxBuffer;
+USBHost_H7::USBHost_H7()
+{}
+
+USBHost_H7::~USBHost_H7()
+{}
+
+void USBHost_H7::begin() {
+    pinMode(PA_15, OUTPUT);
+    MX_USB_HOST_Init();
+}
+
+void USBHost_H7::end() 
+{}
+
+/** HID Handlers **/
+RingBufferNGeneric<64, HID_KEYBD_Info_TypeDef> HIDKeyboard::rxBuffer;
+RingBufferNGeneric<64, HID_MOUSE_Info_TypeDef> HIDMouse::rxBuffer;
 
 extern "C" void USBH_HID_EventCallback(USBH_HandleTypeDef *phost) {
     auto kbd_evt = USBH_HID_GetKeybdInfo(phost);
     if (kbd_evt != NULL) {
-        Keyboard::rxBuffer.store_elem(*kbd_evt);
+        HIDKeyboard::rxBuffer.store_elem(*kbd_evt);
     }
     auto mouse_evt = USBH_HID_GetMouseInfo(phost);
     if (mouse_evt != NULL) {
-        Mouse::rxBuffer.store_elem(*mouse_evt);
+        HIDMouse::rxBuffer.store_elem(*mouse_evt);
     }
-    //Keyboard::rxBuffer.store_char(USBH_HID_GetASCIICode());
 }
 
 extern "C" void Error_Handler() {}
 
-size_t Keyboard::available() {
+/** HID Keyboard **/
+size_t HIDKeyboard::available() {
     return rxBuffer.available();
 }
 
-HID_KEYBD_Info_TypeDef Keyboard::read() {
+HID_KEYBD_Info_TypeDef HIDKeyboard::read() {
     return rxBuffer.read_elem();
 }
 
-char Keyboard::getAscii(HID_KEYBD_Info_TypeDef evt) {
+char HIDKeyboard::getAscii(HID_KEYBD_Info_TypeDef evt) {
     return USBH_HID_GetASCIICode(&evt);
 }
 
-void Keyboard::begin() {
-    pinMode(PA_15, OUTPUT);
-    MX_USB_HOST_Init();
-}
-
-size_t Mouse::available() {
+/** HID Mouse **/
+size_t HIDMouse::available() {
     return rxBuffer.available();
 }
 
-HID_MOUSE_Info_TypeDef Mouse::read() {
+HID_MOUSE_Info_TypeDef HIDMouse::read() {
     return rxBuffer.read_elem();
 }
 
-void Mouse::begin() {
-    pinMode(PA_15, OUTPUT);
-    MX_USB_HOST_Init();
-}
-
+/** CDC Serial**/
 extern "C" USBH_HandleTypeDef hUsbHostHS;
+extern "C" ApplicationTypeDef Appli_state;
 
-HostSerial* _hostSerial = nullptr;
+CDCSerial* _hostSerial = nullptr;
 static uint8_t buf[64];
 
 extern "C" void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef* phost) {    
     _hostSerial->rx_cb(buf, sizeof(buf) + USBH_CDC_GetLastReceivedDataSize(phost));
-    //USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
 }
 
-void HostSerial::rx_cb(uint8_t* data, size_t len) {
-    _mut.lock();
-    for (int i = 0; i < len; i++) {
-        rxBuffer.store_char(data[i]);
-    }
-    _mut.unlock();
-}
-
-extern "C" ApplicationTypeDef Appli_state;
-
-void HostSerial::begin(unsigned long unused, uint16_t config) {
-    pinMode(PA_15, OUTPUT);
-    MX_USB_HOST_Init();
+void CDCSerial::begin(unsigned long unused, uint16_t config) {
     while (Appli_state != APPLICATION_READY) {
         delay(100);
     }
@@ -83,8 +78,7 @@ void HostSerial::begin(unsigned long unused, uint16_t config) {
     USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
 }
 
-int HostSerial::available() {
-    //USBH_CDC_Stop(&hUsbHostHS);
+int CDCSerial::available() {
     _mut.lock();
     auto ret = rxBuffer.available();
     if (ret == 0) {
@@ -94,13 +88,19 @@ int HostSerial::available() {
     return ret;
 }
 
-int HostSerial::read() {
+int CDCSerial::read() {
     _mut.lock();
     auto ret = rxBuffer.read_char();
     _mut.unlock();
     return ret;
 }
 
-size_t HostSerial::write(uint8_t) {
-        //USBH_CDC_Transmit()
-};
+size_t CDCSerial::write(uint8_t) { };
+
+void CDCSerial::rx_cb(uint8_t* data, size_t len) {
+    _mut.lock();
+    for (int i = 0; i < len; i++) {
+        rxBuffer.store_char(data[i]);
+    }
+    _mut.unlock();
+}
