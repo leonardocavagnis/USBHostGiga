@@ -73,7 +73,7 @@
 #define USBH_KEEP_CFG_DESCRIPTOR      1U
 
 /*----------   -----------*/
-#define USBH_MAX_NUM_SUPPORTED_CLASS      4U /* NOTE: Reduced to 4 */
+#define USBH_MAX_NUM_SUPPORTED_CLASS      5U 
 
 /*----------   -----------*/
 #define USBH_MAX_SIZE_CONFIGURATION      256U
