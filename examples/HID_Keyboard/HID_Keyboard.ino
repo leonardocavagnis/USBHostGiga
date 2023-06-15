@@ -1,5 +1,7 @@
 #include "USBHost_H7.h"
 
+//REDIRECT_STDOUT_TO(Serial)
+
 USBHost_H7 usbhost;
 HIDKeyboard keybd;
 
@@ -13,7 +15,8 @@ void setup() {
 
 void loop() {
   if (keybd.available()) {
-    auto _key = keybd.read();
-    Serial.println(keybd.getAscii(_key));
+    HIDKeyboard_evt keybd_evt = keybd.read();
+    
+    Serial.println(keybd.getAscii(keybd_evt));
   }
 }

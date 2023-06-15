@@ -19,13 +19,21 @@ RingBufferNGeneric<64, HID_KEYBD_Info_TypeDef> HIDKeyboard::rxBuffer;
 RingBufferNGeneric<64, HID_MOUSE_Info_TypeDef> HIDMouse::rxBuffer;
 
 extern "C" void USBH_HID_EventCallback(USBH_HandleTypeDef *phost) {
-    auto kbd_evt = USBH_HID_GetKeybdInfo(phost);
-    if (kbd_evt != NULL) {
-        HIDKeyboard::rxBuffer.store_elem(*kbd_evt);
+    /* if the HID is a Mouse */
+	if(USBH_HID_GetDeviceType(phost) == HID_MOUSE) {
+        HID_MOUSE_Info_TypeDef *mouse_info;
+        mouse_info = USBH_HID_GetMouseInfo(phost);
+        if (mouse_info != NULL) {
+            HIDMouse::rxBuffer.store_elem(*mouse_info);
+        }
     }
-    auto mouse_evt = USBH_HID_GetMouseInfo(phost);
-    if (mouse_evt != NULL) {
-        HIDMouse::rxBuffer.store_elem(*mouse_evt);
+    /* if the HID is a Keyboard */
+    if(USBH_HID_GetDeviceType(phost) == HID_KEYBOARD) {
+        HID_KEYBD_Info_TypeDef *keybd_info;
+        keybd_info = USBH_HID_GetKeybdInfo(phost);
+        if (keybd_info != NULL) {
+            HIDKeyboard::rxBuffer.store_elem(*keybd_info);
+        }
     }
 }
 

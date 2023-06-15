@@ -10,6 +10,9 @@
 
 #include "ring_buffer_generic.h"
 
+#define HIDMouse_evt    HID_MOUSE_Info_TypeDef   
+#define HIDKeyboard_evt HID_KEYBD_Info_TypeDef
+
 class USBHost_H7 {
     public:
         USBHost_H7();

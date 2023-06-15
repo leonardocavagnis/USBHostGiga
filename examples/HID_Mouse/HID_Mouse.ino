@@ -1,5 +1,7 @@
 #include "USBHost_H7.h"
 
+//REDIRECT_STDOUT_TO(Serial)
+
 USBHost_H7 usbhost;
 HIDMouse mouse;
 
@@ -13,9 +15,18 @@ void setup() {
 
 void loop() {
   if (mouse.available()) {
-    auto _key = mouse.read();
+    HIDMouse_evt mou_evt = mouse.read();
     
-    Serial.println(_key.x);
-    Serial.println(_key.y);
+    Serial.print("Buttons: ");
+    Serial.print(mou_evt.buttons[0]);
+    Serial.print(",");
+    Serial.print(mou_evt.buttons[1]);
+    Serial.print(",");
+    Serial.println(mou_evt.buttons[2]);
+
+    Serial.print("X,Y: ");
+    Serial.print(mou_evt.x);
+    Serial.print(",");
+    Serial.println(mou_evt.y);
   }
 }
