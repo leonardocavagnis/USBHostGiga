@@ -90,7 +90,7 @@ void CDCSerial::begin(unsigned long unused, uint16_t config) {
 int CDCSerial::available() {
     _mut.lock();
     auto ret = rxBuffer.available();
-    if (ret == 0) {
+    if (ret == 0 && Appli_state == APPLICATION_READY) {
         USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
     }
     _mut.unlock();
