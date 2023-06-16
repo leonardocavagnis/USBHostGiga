@@ -144,17 +144,16 @@ USBH_StatusTypeDef USBH_Init(USBH_HandleTypeDef *phost,
 #else
 
 /* PATCH BEGIN USBH_Init 1 */
-  static osMessageQueueAttr_t msgq_attrs;
-  static char _queue_mem[1024 * sizeof(uint32_t) + sizeof(osRtxMessageQueue_t)];
-  static osRtxMessageQueue_t _obj_mem;
+  osMessageQueueAttr_t attr = { 0 };
+  char _queue_mem[1024 * (sizeof(uint32_t) + sizeof(osRtxMessage_t))];
+  osRtxMessageQueue_t _obj_mem;
 
-  msgq_attrs.mq_mem = _queue_mem;
-  msgq_attrs.mq_size = sizeof(_queue_mem);
-  msgq_attrs.cb_mem = &_obj_mem;
-  msgq_attrs.cb_size = sizeof(_obj_mem);
-
-  /* Create USB Host Queue */
-  phost->os_event = osMessageQueueNew(MSGQUEUE_OBJECTS, sizeof(uint32_t), &msgq_attrs);
+  attr.mq_mem = _queue_mem;
+  attr.mq_size = sizeof(_queue_mem);
+  attr.cb_mem = &_obj_mem;
+  attr.cb_size = sizeof(_obj_mem);
+  
+  phost->os_event = osMessageQueueNew(MSGQUEUE_OBJECTS, sizeof(uint32_t), &attr);
 /* PATCH END USBH_Init 1 */
 
   /* Create USB Host Task */

@@ -1,5 +1,7 @@
 #include "USBHost_H7.h"
 
+//REDIRECT_STDOUT_TO(Serial)
+
 USBHost_H7 usbhost;
 CDCSerial host;
 

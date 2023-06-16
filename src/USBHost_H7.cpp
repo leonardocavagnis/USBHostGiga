@@ -68,8 +68,10 @@ extern "C" ApplicationTypeDef Appli_state;
 CDCSerial* _hostSerial = nullptr;
 static uint8_t buf[64];
 
-extern "C" void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef* phost) {    
-    _hostSerial->rx_cb(buf, sizeof(buf) + USBH_CDC_GetLastReceivedDataSize(phost));
+extern "C" void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef* phost) {   
+    uint16_t data_len = USBH_CDC_GetLastReceivedDataSize(&hUsbHostHS); 
+    data_len = (data_len > sizeof(buf)) ? sizeof(buf) : data_len;
+    _hostSerial->rx_cb(buf, data_len);
 }
 
 void CDCSerial::begin(unsigned long unused, uint16_t config) {
@@ -82,7 +84,6 @@ void CDCSerial::begin(unsigned long unused, uint16_t config) {
     linecoding.b.dwDTERate = 115200;
     linecoding.b.bDataBits = 8;
     USBH_CDC_SetLineCoding(&hUsbHostHS, &linecoding);
-    USBH_CDC_SetControlLineState(&hUsbHostHS, 1, 1);
     USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
 }
 
