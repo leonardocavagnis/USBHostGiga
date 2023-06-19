@@ -129,6 +129,7 @@ static void USBH_UserProcess  (USBH_HandleTypeDef *phost, uint8_t id)
   break;
 
   case HOST_USER_DISCONNECTION:
+  USBH_CDC_Stop(&hUsbHostHS);
   Appli_state = APPLICATION_DISCONNECT;
   break;
 

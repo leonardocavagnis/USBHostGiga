@@ -129,7 +129,14 @@ void CDCSerial::begin(unsigned long baudrate, uint16_t config) {
 int CDCSerial::available() {
     _mut.lock();
     auto ret = rxBuffer.available();
-    if (ret == 0 && Appli_state == APPLICATION_READY) {
+    if (Appli_state == APPLICATION_READY) {
+        if (ret == 0) USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
+    } else {
+        while (Appli_state != APPLICATION_READY) {
+            delay(100);
+        }
+        USBH_CDC_Stop(&hUsbHostHS);
+        USBH_CDC_SetLineCoding(&hUsbHostHS, &linecoding);
         USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
     }
     _mut.unlock();
