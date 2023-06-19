@@ -38,9 +38,13 @@ class HIDMouse {
 
 class CDCSerial : public arduino::HardwareSerial {
     public:
-        void begin(unsigned long a = 0, uint16_t config = 0);
-        void begin(unsigned long a) {
-            begin(a, 0);
+        void begin(unsigned long baudrate, uint16_t config);
+        void begin(unsigned long baudrate) {
+            uint16_t config = 0;
+            config |= SERIAL_DATA_8;
+            config |= SERIAL_STOP_BIT_1;
+            config |= SERIAL_PARITY_NONE;
+            begin(baudrate, config);     
         }
         int available();
         int read();

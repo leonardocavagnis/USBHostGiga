@@ -67,6 +67,7 @@ extern "C" ApplicationTypeDef Appli_state;
 
 CDCSerial* _hostSerial = nullptr;
 static uint8_t buf[64];
+static CDC_LineCodingTypeDef linecoding;
 
 extern "C" void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef* phost) {   
     uint16_t data_len = USBH_CDC_GetLastReceivedDataSize(&hUsbHostHS); 
@@ -74,15 +75,53 @@ extern "C" void USBH_CDC_ReceiveCallback(USBH_HandleTypeDef* phost) {
     _hostSerial->rx_cb(buf, data_len);
 }
 
-void CDCSerial::begin(unsigned long unused, uint16_t config) {
+void CDCSerial::begin(unsigned long baudrate, uint16_t config) {
     while (Appli_state != APPLICATION_READY) {
         delay(100);
     }
     _hostSerial = this;
+ 
+    linecoding.b.dwDTERate      = baudrate;
 
-    static CDC_LineCodingTypeDef linecoding;
-    linecoding.b.dwDTERate = 115200;
-    linecoding.b.bDataBits = 8;
+    switch (config & SERIAL_DATA_MASK) {
+        case SERIAL_DATA_7:
+            linecoding.b.bDataBits = 7;
+            break;
+        case SERIAL_DATA_8:
+            linecoding.b.bDataBits = 8;
+            break;
+        default: 
+            linecoding.b.bDataBits = 8;
+        break;
+	}
+
+    switch (config & SERIAL_STOP_BIT_MASK) {
+        case SERIAL_STOP_BIT_1:
+            linecoding.b.bCharFormat = 0;
+            break;
+        case SERIAL_STOP_BIT_2:
+            linecoding.b.bCharFormat = 2;
+            break;
+        default: 
+            linecoding.b.bCharFormat = 0;
+            break;
+    }
+
+    switch (config & SERIAL_PARITY_MASK) {
+        case SERIAL_PARITY_EVEN:
+            linecoding.b.bParityType    = 2;
+            break;
+        case SERIAL_PARITY_ODD:
+            linecoding.b.bParityType    = 1;
+            break;
+        case SERIAL_PARITY_NONE:
+            linecoding.b.bParityType    = 0;
+            break;
+        default:
+            linecoding.b.bParityType    = 0;
+            break;
+    }
+
     USBH_CDC_SetLineCoding(&hUsbHostHS, &linecoding);
     USBH_CDC_Receive(&hUsbHostHS, buf, sizeof(buf));
 }

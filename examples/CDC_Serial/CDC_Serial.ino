@@ -11,7 +11,7 @@ void setup() {
   Serial.println("USB CDC Serial");
 
   usbhost.begin();
-  host.begin();
+  host.begin(115200);
 }
 
 void loop() {
