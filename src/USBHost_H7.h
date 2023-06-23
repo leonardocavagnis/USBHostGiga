@@ -10,6 +10,8 @@
 
 #include "ring_buffer_generic.h"
 
+#include "fatfs_ff.h"
+
 #define HIDMouse_evt    HID_MOUSE_Info_TypeDef   
 #define HIDKeyboard_evt HID_KEYBD_Info_TypeDef
 

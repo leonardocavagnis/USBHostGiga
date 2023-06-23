@@ -170,12 +170,16 @@ bool MSCDrive::begin() {
     bool res;
     char USBDISKPath[4]; /* USB Host logical drive path */
 
+    while (Appli_state != APPLICATION_READY) {
+        delay(100);
+    }
+
     res = false;
     if (FATFS_LinkDriver(&USBH_Driver, USBDISKPath) == 0) {
         if (fatfs_mount(&USBH_fatfs, "", 0) == FR_OK) {
             res = true;
         }
     }
-
+    
     return res;
 }
