@@ -1,5 +1,7 @@
 #include "USBHost_H7.h"
 
+#include "usbh_diskio.h"
+
 USBHost_H7::USBHost_H7()
 {}
 
@@ -61,7 +63,7 @@ HID_MOUSE_Info_TypeDef HIDMouse::read() {
     return rxBuffer.read_elem();
 }
 
-/** CDC Serial**/
+/** CDC Serial **/
 extern "C" USBH_HandleTypeDef hUsbHostHS;
 extern "C" ApplicationTypeDef Appli_state;
 
@@ -158,4 +160,22 @@ void CDCSerial::rx_cb(uint8_t* data, size_t len) {
         rxBuffer.store_char(data[i]);
     }
     _mut.unlock();
+}
+
+/** MSC Drive **/
+
+FATFS USBH_fatfs;
+
+bool MSCDrive::begin() {
+    bool res;
+    char USBDISKPath[4]; /* USB Host logical drive path */
+
+    res = false;
+    if (FATFS_LinkDriver(&USBH_Driver, USBDISKPath) == 0) {
+        if (fatfs_mount(&USBH_fatfs, "", 0) == FR_OK) {
+            res = true;
+        }
+    }
+
+    return res;
 }

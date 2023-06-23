@@ -62,3 +62,8 @@ class CDCSerial : public arduino::HardwareSerial {
         RingBufferN<128> rxBuffer;
         rtos::Mutex _mut;
 };
+
+class MSCDrive {
+    public:
+        bool begin();
+};
