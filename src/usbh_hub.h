@@ -90,13 +90,25 @@ typedef enum
 
 typedef enum
 {
-	HUB_REQ_IDLE = 0,
-	HUB_REQ_GET_DESCRIPTOR,
-	HUB_REQ_SET_POWER,
-	HUB_WAIT_PWRGOOD,
-	HUB_REQ_DONE,
+	USBH_HUB_REQ_IDLE = 0,
+	USBH_HUB_REQ_GET_DESCRIPTOR,
+	USBH_HUB_REQ_SET_POWER,
+	USBH_HUB_WAIT_PWRGOOD,
+	USBH_HUB_REQ_DONE,
 }
 HUB_CtlStateTypeDef;
+
+typedef struct __attribute__ ((packed)) _HUBDescriptor
+{
+  uint8_t  bLength;               // Length of this descriptor.
+  uint8_t  bDescriptorType;       // Descriptor Type, value: 29H for hub descriptor
+  uint8_t  bNbrPorts;             // Number of downstream facing ports that this hub supports
+  uint16_t wHubCharacteristics;   //
+  uint8_t  bPwrOn2PwrGood;        // Time (in 2 ms intervals) from the time the power-on sequence begins on a port until power is good on that port
+  uint8_t  bHubContrCurrent;      // Maximum current requirements of the Hub Controller electronics in mA
+  uint8_t  DeviceRemovable;       // Indicates if a port has a removable device attached.
+  uint8_t  PortPwrCtrlMask;       // This field exists for reasons of compatibility with software written for 1.0 compliant devices.
+} HUB_DescTypeDef;
 
 /* Structure for HUB process */
 typedef struct _HUB_Process
@@ -111,20 +123,8 @@ typedef struct _HUB_Process
   uint16_t             poll;
   uint32_t             timer;
   uint8_t              DataReady;
-
+  HUB_DescTypeDef      HUB_Desc;
 } HUB_HandleTypeDef;
-
-typedef struct __attribute__ ((packed)) _HUB_Descriptor
-{
-  uint8_t  bLength;               // Length of this descriptor.
-  uint8_t  bDescriptorType;       // Descriptor Type, value: 29H for hub descriptor
-  uint8_t  bNbrPorts;             // Number of downstream facing ports that this hub supports
-  uint16_t wHubCharacteristics;   //
-  uint8_t  bPwrOn2PwrGood;        // Time (in 2 ms intervals) from the time the power-on sequence begins on a port until power is good on that port
-  uint8_t  bHubContrCurrent;      // Maximum current requirements of the Hub Controller electronics in mA
-  uint8_t  DeviceRemovable;       // Indicates if a port has a removable device attached.
-  uint8_t  PortPwrCtrlMask;       // This field exists for reasons of compatibility with software written for 1.0 compliant devices.
-} HUB_UsbDescriptorTypeDef;
 
 /**
   * @}
