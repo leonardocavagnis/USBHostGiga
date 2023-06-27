@@ -27,6 +27,7 @@
 #include "usbh_msc.h"
 #include "usbh_hid.h"
 #include "usbh_mtp.h"
+#include "usbh_hub.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -97,6 +98,10 @@ void MX_USB_HOST_Init(void)
     Error_Handler();
   }
   if (USBH_RegisterClass(&hUsbHostHS, USBH_MTP_CLASS) != USBH_OK)
+  {
+    Error_Handler();
+  }
+  if (USBH_RegisterClass(&hUsbHostHS, USBH_HUB_CLASS) != USBH_OK)
   {
     Error_Handler();
   }
