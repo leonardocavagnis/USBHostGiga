@@ -117,13 +117,13 @@ typedef struct _HUB_Process
   HUB_StateTypeDef     state;
   uint8_t              InEp;
   HUB_CtlStateTypeDef  ctl_state;
-  uint8_t              buffer[20];
   uint16_t             length;
   uint8_t              ep_addr;
   uint16_t             poll;
   uint32_t             timer;
   uint8_t              DataReady;
   HUB_DescTypeDef      HUB_Desc;
+  uint8_t              current_port;
 } HUB_HandleTypeDef;
 
 /**

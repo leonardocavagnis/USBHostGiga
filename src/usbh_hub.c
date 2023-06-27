@@ -66,7 +66,6 @@
 /** @defgroup USBH_HUB_CORE_Private_Variables
   * @{
   */
-static uint8_t  HUB_NumPorts = 0;
 
 /**
   * @}
@@ -154,7 +153,7 @@ static USBH_StatusTypeDef USBH_HUB_InterfaceInit(USBH_HandleTypeDef *phost)
 
   if (HUB_Handle->poll < HUB_MIN_POLL) HUB_Handle->poll = HUB_MIN_POLL;
 
-  USBH_UsrLog("HUB device POLL %d, LEN %d", HUB_Handle->poll, HUB_Handle->length);
+  USBH_UsrLog("HUB: polling time %u, max pack size %u", HUB_Handle->poll, HUB_Handle->length);
 
   if(phost->device.CfgDesc.Itf_Desc[phost->device.current_interface].Ep_Desc[0].bEndpointAddress & 0x80)
   {
@@ -210,21 +209,19 @@ static USBH_StatusTypeDef USBH_HUB_ClassRequest(USBH_HandleTypeDef *phost)
   USBH_StatusTypeDef classReqStatus = USBH_BUSY;
   HUB_HandleTypeDef *HUB_Handle     = (HUB_HandleTypeDef *) phost->pActiveClass->pData;
 
-  static uint8_t port = 1;
-
   switch (HUB_Handle->ctl_state)
   {
     case USBH_HUB_REQ_IDLE:
     case USBH_HUB_REQ_GET_DESCRIPTOR:
-      port = 1;
       classReqStatus = HUB_GetDescriptor(phost);
       if (classReqStatus == USBH_OK)
       {
+        HUB_Handle->current_port = 1;
         HUB_Handle->ctl_state = USBH_HUB_REQ_SET_POWER;
       } 
       else if (classReqStatus == USBH_NOT_SUPPORTED)
       {
-        USBH_ErrLog("Control error: HUB: Device Get Report Descriptor request failed");
+        USBH_ErrLog("Control error: HUB: Device Get Descriptor request failed");
         status = USBH_FAIL;
       }
       else
@@ -235,13 +232,16 @@ static USBH_StatusTypeDef USBH_HUB_ClassRequest(USBH_HandleTypeDef *phost)
 
     case USBH_HUB_REQ_SET_POWER:
       // Turn on power for each hub port
-      if(HUB_SetPortPower(phost, port) == USBH_OK)
+      if(HUB_SetPortPower(phost, HUB_Handle->current_port) == USBH_OK)
       {
-        // Reach last port
-        if(HUB_NumPorts == port)
+        if(HUB_Handle->HUB_Desc.bNbrPorts == HUB_Handle->current_port)
           HUB_Handle->ctl_state = USBH_HUB_WAIT_PWRGOOD;
         else
-          port++;
+          HUB_Handle->current_port++;
+      } 
+      else if (classReqStatus == USBH_NOT_SUPPORTED || classReqStatus == USBH_FAIL)
+      {
+        status = USBH_FAIL;
       }
       break;
 
@@ -251,7 +251,7 @@ static USBH_StatusTypeDef USBH_HUB_ClassRequest(USBH_HandleTypeDef *phost)
       break;
 
     case USBH_HUB_REQ_DONE:
-      USBH_UsrLog("%d HUB PORTS ENABLED", HUB_NumPorts);
+      USBH_UsrLog("HUB: %u ports enabled", HUB_Handle->HUB_Desc.bNbrPorts);
       status = USBH_OK;
       break;
   }
@@ -299,15 +299,7 @@ static USBH_StatusTypeDef HUB_GetDescriptor(USBH_HandleTypeDef *phost)
   phost->Control.setup.b.wIndex.w  	    = 0;
   phost->Control.setup.b.wLength.w 	    = sizeof(HUB_DescTypeDef);
 
-  ctlReqStatus = USBH_CtlReq(phost, (uint8_t *)&HUB_Handle->HUB_Desc, sizeof(HUB_DescTypeDef));
-  if (ctlReqStatus != USBH_OK) 
-  {
-    return ctlReqStatus;
-  }
-
-  HUB_NumPorts = (HUB_Handle->HUB_Desc.bNbrPorts > MAX_HUB_PORTS) ? MAX_HUB_PORTS : HUB_Handle->HUB_Desc.bNbrPorts;
-
-	return USBH_OK;
+	return USBH_CtlReq(phost, (uint8_t *)&HUB_Handle->HUB_Desc, sizeof(HUB_DescTypeDef));
 }
 
 static USBH_StatusTypeDef HUB_SetPortPower(USBH_HandleTypeDef *phost, uint8_t hub_port)
