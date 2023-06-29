@@ -66,7 +66,6 @@
 /** @defgroup USBH_HUB_CORE_Private_Variables
   * @{
   */
- static __IO HUB_PortChangeTypeDef HUB_Change;
 
 /**
   * @}
@@ -87,9 +86,8 @@ static USBH_StatusTypeDef HUB_GetDescriptor(USBH_HandleTypeDef *phost);
 static USBH_StatusTypeDef HUB_SetPortPower(USBH_HandleTypeDef *phost, uint8_t hub_port);
 static USBH_StatusTypeDef HUB_RequestOp(USBH_HandleTypeDef *phost, uint8_t request, uint8_t feature, uint8_t dataDirection, uint8_t porta, uint8_t *buffer, uint16_t size);
 static USBH_StatusTypeDef HUB_SetHubRequest(USBH_HandleTypeDef *phost, uint8_t request, uint8_t feature, uint8_t port);
-static uint8_t            HUB_PortChanged(uint8_t *b);
-static uint8_t            HUB_GetPortChanged(void);
-static void               HUB_ClearPortChanged(uint8_t port);
+static uint8_t            HUB_GetPortChanged(HUB_PortChangeTypeDef hubChange);
+static void               HUB_ClearPortChanged(HUB_PortChangeTypeDef * hubChange, uint8_t port);
 static USBH_StatusTypeDef HUB_GetHubRequest(USBH_HandleTypeDef *phost, uint8_t request, uint8_t feature, uint8_t porta, uint8_t *buffer, uint16_t size);
 static USBH_StatusTypeDef HUB_ClearPortFeature(USBH_HandleTypeDef *phost, uint8_t feature, uint8_t port);
 static USBH_StatusTypeDef HUB_SetPortFeature(USBH_HandleTypeDef *phost, uint8_t feature, uint8_t port);
@@ -316,7 +314,7 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
 
     case USBH_HUB_GET_DATA:
       (void)USBH_InterruptReceiveData(phost, 
-                                      HUB_Handle->buffer,
+                                      (uint8_t*)&HUB_Handle->port_change,
                                       (uint8_t)HUB_Handle->length,
                                       HUB_Handle->InPipe);
 
@@ -331,15 +329,15 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
         if(HUB_Handle->DataReady == 0)
         {
           HUB_Handle->DataReady = 1;
-          
-          if(HUB_PortChanged(HUB_Handle->buffer)) 
+
+          if(HUB_Handle->port_change.val > 0) 
           {
             HUB_Handle->state = USBH_HUB_LOOP_PORT_CHANGED;
           } 
           else 
           {
             HUB_Handle->state = USBH_HUB_GET_DATA;
-          } 
+          }       
 
 #if (USBH_USE_OS == 1U)
           phost->os_msg = (uint32_t)USBH_URB_EVENT;
@@ -367,10 +365,10 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
       break;
 
     case USBH_HUB_LOOP_PORT_CHANGED:
-      HUB_Handle->current_port = HUB_GetPortChanged();
+      HUB_Handle->current_port = HUB_GetPortChanged(HUB_Handle->port_change);
       if(HUB_Handle->current_port > 0)
       {
-        HUB_ClearPortChanged(HUB_Handle->current_port);
+        HUB_ClearPortChanged(&HUB_Handle->port_change, HUB_Handle->current_port);
         HUB_Handle->state = USBH_HUB_PORT_CHANGED;
 
 #if (USBH_USE_OS == 1U)
@@ -575,41 +573,30 @@ static USBH_StatusTypeDef HUB_RequestOp(USBH_HandleTypeDef *phost, uint8_t reque
 	return USBH_CtlReq(phost, buffer, size);
 }
 
-static uint8_t HUB_PortChanged(uint8_t *b)
+static uint8_t HUB_GetPortChanged(HUB_PortChangeTypeDef hubChange)
 {
-  if(b[0] != 0x00)
-  {
-    HUB_Change.val = 0x00;
-
-    if(b[0] & (1<<1)) { HUB_Change.bPorts.PORT_1 = 1; }
-    if(b[0] & (1<<2)) { HUB_Change.bPorts.PORT_2 = 1; }
-    if(b[0] & (1<<3)) { HUB_Change.bPorts.PORT_3 = 1; }
-    if(b[0] & (1<<4)) { HUB_Change.bPorts.PORT_4 = 1; }
-
-    return HUB_Change.val > 0;
-  }
+  if(hubChange.bPorts.PORT_1)	return 1;
+  if(hubChange.bPorts.PORT_2)	return 2;
+  if(hubChange.bPorts.PORT_3)	return 3;
+  if(hubChange.bPorts.PORT_4)	return 4;
+  if(hubChange.bPorts.PORT_5)	return 5;
+  if(hubChange.bPorts.PORT_6)	return 6;
+  if(hubChange.bPorts.PORT_7)	return 7;
 
   return 0;
 }
 
-static uint8_t HUB_GetPortChanged(void)
-{
-  if(HUB_Change.bPorts.PORT_1)	return 1;
-  if(HUB_Change.bPorts.PORT_2)	return 2;
-  if(HUB_Change.bPorts.PORT_3)	return 3;
-  if(HUB_Change.bPorts.PORT_4)	return 4;
-
-  return 0;
-}
-
-static void HUB_ClearPortChanged(uint8_t port)
+static void HUB_ClearPortChanged(HUB_PortChangeTypeDef * hubChange, uint8_t port)
 {
 	switch(port)
 	{
-		case 1: HUB_Change.bPorts.PORT_1 = 0; break;
-		case 2: HUB_Change.bPorts.PORT_2 = 0; break;
-		case 3: HUB_Change.bPorts.PORT_3 = 0; break;
-		case 4: HUB_Change.bPorts.PORT_4 = 0; break;
+		case 1: hubChange->bPorts.PORT_1 = 0; break;
+		case 2: hubChange->bPorts.PORT_2 = 0; break;
+		case 3: hubChange->bPorts.PORT_3 = 0; break;
+		case 4: hubChange->bPorts.PORT_4 = 0; break;
+    case 5: hubChange->bPorts.PORT_5 = 0; break;
+		case 6: hubChange->bPorts.PORT_6 = 0; break;
+		case 7: hubChange->bPorts.PORT_7 = 0; break;
 	}
 }
 

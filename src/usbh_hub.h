@@ -48,7 +48,7 @@ extern "C" {
 #define USB_HUB_CLASS	                        0x09
 
 #define HUB_MIN_POLL                          200
-#define MAX_HUB_PORTS 						            4
+//FIXME: #define MAX_HUB_PORTS 						    4
 
 #define USB_DESCRIPTOR_HUB                    0x29
 #define USB_REQUEST_GET_DESCRIPTOR            0x06
@@ -165,6 +165,25 @@ typedef struct __attribute__ ((packed)) _HUB_PortStatus
     } wPortChange;
 } HUB_PortStatusTypeDef;
 
+typedef struct __attribute__ ((packed)) _HUB_PortChange
+{
+    union
+    {
+        struct
+        {
+          uint8_t     RESERVED_1  : 1;
+          uint8_t     PORT_1      : 1;
+          uint8_t     PORT_2      : 1;
+          uint8_t     PORT_3      : 1;
+          uint8_t     PORT_4      : 1;
+          uint8_t     PORT_5      : 1;
+          uint8_t     PORT_6      : 1;
+          uint8_t     PORT_7      : 1;
+        } bPorts;
+        uint8_t val;
+    };
+} HUB_PortChangeTypeDef;
+
 /* Structure for HUB process */
 typedef struct _HUB_Process
 {
@@ -172,7 +191,6 @@ typedef struct _HUB_Process
   HUB_StateTypeDef      state;
   uint8_t               InEp;
   HUB_CtlStateTypeDef   ctl_state;
-  uint8_t              buffer[20];
   uint16_t              length;
   uint8_t               ep_addr;
   uint16_t              poll;
@@ -181,26 +199,8 @@ typedef struct _HUB_Process
   HUB_DescTypeDef       HUB_Desc;
   uint8_t               current_port;
   HUB_PortStatusTypeDef port_status;
+  HUB_PortChangeTypeDef port_change;
 } HUB_HandleTypeDef;
-
-typedef struct __attribute__ ((packed)) _HUB_PortChange
-{
-    union
-    {
-        struct
-        {
-          uint8_t     PORT_1    : 1;
-          uint8_t     PORT_2    : 1;
-          uint8_t     PORT_3    : 1;
-          uint8_t     PORT_4    : 1;
-          uint8_t     PORT_5    : 1;
-          uint8_t     PORT_6    : 1;
-          uint8_t     PORT_7    : 1;
-          uint8_t     PORT_8    : 1;
-        } bPorts;
-        uint8_t val;
-    };
-} HUB_PortChangeTypeDef;
 
 /**
   * @}
