@@ -1,4 +1,4 @@
-# [ALPHA] USBHost library for Arduino STM32H7 boards
+# 🔌 [ALPHA] USBHost library for Arduino STM32H7 boards
 
 The Arduino USBHost_H7 library provides a convenient way to manage USB peripherals on Arduino boards based on the STM32H7 microcontroller. Currently, the library is compatible only with Arduino Giga R1 boards.
 
