@@ -78,6 +78,11 @@ extern "C" {
 #define HUB_FEAT_SEL_C_PORT_RESET             0x14
 #define HUB_FEAT_SEL_PORT_INDICATOR           0x16
 
+#define HUB_EC_Undefined                      0xFFU
+#define HUB_EC_HubDetected                    0x01U
+#define HUB_EC_DeviceAttach                   0x02U
+#define HUB_EC_DeviceDetach                   0x03U
+
 /**
   * @}
   */

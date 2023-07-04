@@ -261,6 +261,11 @@ static USBH_StatusTypeDef USBH_HUB_ClassRequest(USBH_HandleTypeDef *phost)
 
     case USBH_HUB_REQ_DONE:
       USBH_UsrLog("HUB: %u ports enabled", HUB_Handle->HUB_Desc.bNbrPorts);
+
+      /* all requests performed */
+      phost->pUser(phost, HOST_USER_CLASS_ACTIVE);
+
+      USBH_HUB_EventsCallback(phost, HUB_EC_HubDetected);
       status = USBH_OK;
       break;
   }
@@ -477,6 +482,8 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
 
       HUB_Handle->state = USBH_HUB_LOOP_PORT_WAIT;
       HUB_Attach(phost, HUB_Handle->current_port, HUB_Handle->port_status.wPortStatus.PORT_LOW_SPEED);
+
+      USBH_HUB_EventsCallback(phost, HUB_EC_DeviceAttach);
       break;
 
     case USBH_HUB_DEV_DETACHED:
@@ -484,6 +491,8 @@ static USBH_StatusTypeDef USBH_HUB_Process(USBH_HandleTypeDef *phost)
 
       HUB_Handle->state = USBH_HUB_LOOP_PORT_WAIT;
       HUB_Detach(phost, HUB_Handle->current_port);
+
+      USBH_HUB_EventsCallback(phost, HUB_EC_DeviceDetach);
     break;
 
     case USBH_HUB_LOOP_PORT_WAIT:
@@ -618,6 +627,17 @@ static void HUB_Detach(USBH_HandleTypeDef *_phost, uint16_t idx)
 static void HUB_Attach(USBH_HandleTypeDef *phost, uint16_t idx, uint8_t lowspeed)
 {
   //TODO
+}
+
+/**
+  * @brief  The function informs that host has received an event
+  * @retval None
+  */
+__weak void USBH_HUB_EventsCallback(USBH_HandleTypeDef *phost, uint32_t event)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(phost);
+  UNUSED(event);
 }
 
 /**

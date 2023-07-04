@@ -7,6 +7,7 @@
 #include "usbh_hid_keybd.h"
 #include "usbh_hid_mouse.h"
 #include "usbh_cdc.h"
+#include "usbh_hub.h"
 
 #include "ring_buffer_generic.h"
 
@@ -68,4 +69,11 @@ class CDCSerial : public arduino::HardwareSerial {
 class MSCDrive {
     public:
         bool begin();
+};
+
+class HUBDevice {
+    public:
+        void begin();
+        int available();
+        int ports;
 };

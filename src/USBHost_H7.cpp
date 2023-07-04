@@ -183,3 +183,39 @@ bool MSCDrive::begin() {
     
     return res;
 }
+
+/** HUB Device **/
+HUBDevice* _hostHub = nullptr;
+
+extern "C" void USBH_HUB_EventsCallback(USBH_HandleTypeDef *phost, uint32_t event) {
+    HUB_HandleTypeDef *HUB_Handle = (HUB_HandleTypeDef *) phost->pActiveClass->pData;
+            
+    switch(event) {
+        case HUB_EC_HubDetected:
+            _hostHub->ports = HUB_Handle->HUB_Desc.bNbrPorts;
+            break;
+        case HUB_EC_DeviceAttach:
+            //TODO
+            break;
+        case HUB_EC_DeviceDetach:
+            //TODO
+            break;
+        default:
+            break;
+    }
+}
+
+void HUBDevice::begin() {
+    _hostHub    = this;
+    ports       = 0;
+
+    return;
+}
+
+int HUBDevice::available() {
+    if (Appli_state != APPLICATION_READY) {
+        ports = 0;
+    }
+
+    return ports;
+}
